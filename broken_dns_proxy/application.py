@@ -31,9 +31,9 @@ class Application(object):
     def __init__(self, cli_conf=None):
         """
         """
-        self.conf = cli_conf
+        self._conf = cli_conf
 
-        if self.conf.verbose:
+        if self._conf.verbose:
             LoggerHelper.add_stream_handler(logger, logging.DEBUG)
         else:
             LoggerHelper.add_stream_handler(logger, logging.INFO)
