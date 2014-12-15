@@ -90,7 +90,7 @@ class ProxyServer(object):
                                 data = None
                                 break
                             data += tmp
-                        msg = dns.message.from_wire(data)
+                        #msg = dns.message.from_wire(data)
 
                         # reply with the same msg
                         # add length to data
