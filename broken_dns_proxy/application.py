@@ -22,6 +22,7 @@ import os
 import logging
 
 from broken_dns_proxy.logger import logger, LoggerHelper
+from broken_dns_proxy.proxy_server import ProxyServer
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
 
 
@@ -36,8 +37,9 @@ class Application(object):
             LoggerHelper.add_stream_handler(logger, logging.DEBUG)
         else:
             LoggerHelper.add_stream_handler(logger, logging.INFO)
-
         self._add_debug_log_file()
+
+        self._server = ProxyServer(53535)
 
     def _add_debug_log_file(self):
         """
@@ -57,8 +59,7 @@ class Application(object):
             self.debug_log_file = debug_log_file
 
     def run(self):
-        logger.debug('Hello world')
-        print('Hello world')
+        self._server.process()
 
 
 if __name__ == '__main__':
