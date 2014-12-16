@@ -6,4 +6,6 @@ Some tools like Unbound, BIND, dnssec-trigger, Free-IPA, rely on the DNSSEC supp
 Purpose of this project is to implement simple, extensible and easy to use DNS proxy for simulating such issues.
 Simple DNS proxy for simulating various DNS issues
 
+![Broken DNS Proxy flowchart](https://raw.githubusercontent.com/thozza/broken-dns-proxy/master/dns_proxy_flow.png)
+
 [![Code Health](https://landscape.io/github/thozza/broken-dns-proxy/master/landscape.svg)](https://landscape.io/github/thozza/broken-dns-proxy/master)
