@@ -34,7 +34,7 @@ class Client(object):
     _client_sock = None
     _client_addr = None
     _client_msg_len = None
-    _client_msg_raw = None
+    _client_msg_raw = ''
     _client_msg = None
 
     def __init__(self, server_socket):
