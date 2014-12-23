@@ -52,6 +52,8 @@ class ProxyServer(object):
         """
         s_udp6 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
         s_tcp6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
+        s_udp6.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+        s_tcp6.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         self._sockets.append(s_udp6)
         self._sockets.append(s_tcp6)
 
