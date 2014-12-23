@@ -19,8 +19,8 @@
 # Authors:
 
 import socket
-import binascii
-import dns
+import dns.message
+import struct
 
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
 from broken_dns_proxy.logger import logger
@@ -70,7 +70,7 @@ class Client(object):
         self._client_sock, self._client_addr = server_socket.accept()
         logger.debug('TCP client {0} connected'.format(self._client_addr))
 
-        self._client_msg_len = int(binascii.b2a_hex(self._client_sock.recv(2)), 16)
+        self._client_msg_len = struct.unpack('!H', self._client_sock.recv(2))[0]
         logger.debug('TCP Query of length {0}'.format(self._client_msg_len))
 
         while len(self._client_msg_raw) < self._client_msg_len:
