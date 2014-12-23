@@ -25,6 +25,8 @@ import dns.message
 
 from broken_dns_proxy.logger import logger
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
+from broken_dns_proxy.client import Client
+
 
 class ProxyServer(object):
     """
@@ -71,49 +73,11 @@ class ProxyServer(object):
                 ready_r, ready_w, _ = select.select(self._sockets, [], [])
 
                 for s in ready_r:
-                    data = None
-                    addr = None
-                    if s.type == socket.SOCK_STREAM:
-                        client_sock, addr = s.accept()
-                        logger.info('Received TCP data from: {0}'.format(addr))
-                        # first 2 bytes is length in DNS TCP stream
-                        # !endian
-                        length = client_sock.recv(2)
-                        length = int(binascii.b2a_hex(length), 16)
-                        logger.info('TCP message lenght: {0}'.format(length))
-                        data = ''
-                        while len(data) < length:
-                            # read all data
-                            tmp = client_sock.recv(length - len(data))
-                            if not tmp:
-                                logger.error('Unable to get all TCP data')
-                                data = None
-                                break
-                            data += tmp
-                        #msg = dns.message.from_wire(data)
-
-                        # reply with the same msg
-                        # add length to data
-
-                        #msg.rcode = 3
-                        #wiredata = msg.to_wire()
-                        #wiredata_length = hex(len(wiredata))[2:]  # remove 0x prefix
-                        #wiredata_length = binascii.a2b_hex(wiredata_length)
-                        #wiredata = str(wiredata_length) + wiredata
-                        #client_sock.send(wiredata)
-
-                        client_sock.close()
-                    elif s.type == socket.SOCK_DGRAM:
-                        # 16bit max udp length limit
-                        data, addr = s.recvfrom(2**16)
-                        logger.info('Received UDP data from: {0}'.format(addr))
-                    else:
-                        logger.error('Received unknown protocol')
-                        continue
-                    if data:
-                        msg = dns.message.from_wire(data)
+                        client = Client(s)
+                        msg = client.msg()
                         logger.info('Received MSG:')
                         logger.info(str(msg))
+
                     # s_udp.sendto(data, addr)  # it doesnt work
                     # rrset = msg.answer
                     #for r in rrset:
