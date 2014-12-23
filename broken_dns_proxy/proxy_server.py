@@ -20,8 +20,10 @@
 
 import socket
 import select
-import binascii
 import dns.message
+import dns.rcode
+import dns.flags
+import dns.query
 
 from broken_dns_proxy.logger import logger
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
@@ -78,12 +80,10 @@ class ProxyServer(object):
                         logger.info('Received MSG:')
                         logger.info(str(msg))
 
-                    # s_udp.sendto(data, addr)  # it doesnt work
-                    # rrset = msg.answer
-                    #for r in rrset:
-                    #    if r.name in zones:
-                    #        print r.name, 'NOTIFY'
-
+                        # sample code sending a response to the client
+                        upstream_server = '8.8.8.8'
+                        response = dns.query.udp(msg, upstream_server)
+                        client.send(response)
         finally:
             for s in self._sockets:
                 s.close()
