@@ -101,3 +101,45 @@ class Client(object):
         """
         return self._client_msg
 
+    def send(self, msg):
+        """
+        Send the msg as a response to the client query.
+
+        :param msg: DNS Message object
+        :return: None
+        """
+        logger.debug('Sending message to client {0}:\n{1}'.format(self._client_addr, msg))
+
+        if self._client_sock.type == socket.SOCK_STREAM:
+            self._send_stream(msg)
+        elif self._client_sock.type == socket.SOCK_DGRAM:
+            self._send_datagram(msg)
+
+    def _send_stream(self, msg):
+        """
+        Send DNS Message to client connected using TCP
+
+        :param msg: DNS Message object to sent to the client
+        :return: None
+        """
+        # to make sure the Response ID matches the Query ID
+        msg.id = self._client_msg.id
+        msg_raw = msg.to_wire()
+        msg_len = struct.pack('!H', len(msg_raw))
+
+        # send the data to the client. 1st 2B is the length
+        self._client_sock.send(msg_len + msg_raw)
+
+    def _send_datagram(self, msg):
+        """
+        Send DNS Message to client connected using UDP
+
+        :param msg: DNS Message object to send to the client
+        :return: None
+        """
+        # to make sure the Response ID matches the Query ID
+        msg.id = self._client_msg.id
+        msg_raw = msg.to_wire()
+
+        # send the data to the client
+        self._client_sock.sendto(msg_raw, self._client_addr)
