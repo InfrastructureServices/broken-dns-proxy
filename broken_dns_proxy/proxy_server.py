@@ -28,6 +28,7 @@ import dns.query
 from broken_dns_proxy.logger import logger
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
 from broken_dns_proxy.client import Client
+from broken_dns_proxy.modifier import Modifier
 
 
 class ProxyServer(object):
@@ -85,6 +86,13 @@ class ProxyServer(object):
                         # sample code sending a response to the client
                         upstream_server = '8.8.8.8'
                         response = dns.query.udp(msg, upstream_server)
+
+                        # sample code how modified msg
+                        modifier = Modifier(response)
+                        modifier.set_new_flags("qr aa ")
+                        modifier.add_flags("tc rd ")
+                        modifier.remove_one_flag("QR")
+
                         client.send(response)
         finally:
             for s in self._sockets:
