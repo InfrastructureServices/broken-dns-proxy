@@ -30,7 +30,7 @@ def _control_flags_text(text_flags):
     """
     function control if flags in text are on list of flags
     :param text_flags:
-    :return:
+    :return: true or error
     """
     if not re.match('^(AA|AD|CD|QR|RA|RD|TC|DO|\s)*$', text_flags, flags=re.IGNORECASE):
         raise BrokenDNSProxyError("Set wrong flags in message")
@@ -42,7 +42,7 @@ def _control_one_flag_text(text_flag):
     """
     function control if flag in text is on list of flags
     :param text_flag:
-    :return:
+    :return: true or error
     """
     if not re.match('\s*(AA|AD|CD|QR|RA|TC|DO)\s*', text_flag, flags=re.IGNORECASE):
         raise BrokenDNSProxyError("Wrong set flag or set more flags than one")
@@ -54,7 +54,7 @@ def _control_edns(text_flags):
     """
     control set of DO flag - because DO has special function to set it
     :param text_flags: flags we want to set
-    :return:
+    :return: true/false if the DO flags in in text_flags
     """
     if re.match('.*DO.*', text_flags, flags=re.IGNORECASE):
         return True
@@ -92,13 +92,13 @@ class Modifier(object):
         :return:
         """
         if set:
-            self._modifier_msg.edns = dns.flags.edns_from_text("DO")
+            self._modifier_msg.ednsflags = dns.flags.edns_from_text("DO")
         else:
-            self._modifier_msg.edns = dns.flags.edns_from_text(" ")
+            self._modifier_msg.ednsflags = dns.flags.edns_from_text(" ")
 
     def log_flags(self):
         logger.info("Flags:{0}".format(dns.flags.to_text(self._modifier_msg.flags)))
-        logger.info("Flag edns :{0}".format(dns.flags.edns_to_text(self._modifier_msg.edns)))
+        logger.info("Flag edns :{0}".format(dns.flags.edns_to_text(self._modifier_msg.ednsflags)))
 
     def set_new_flags(self, flags_in_text):
         """
@@ -148,7 +148,12 @@ class Modifier(object):
                 self._modifier_msg.flags = dns.flags.from_text(flags)
             self.log_flags()
 
-        
+    def enable_edns(self, version):
+
+        self._modifier_msg.edns = version
+
+    def disable_edns(self):
+        self._modifier_msg.edns = -1
 
 
 
