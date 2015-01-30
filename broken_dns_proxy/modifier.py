@@ -32,7 +32,7 @@ def _control_flags_text(text_flags):
     :param text_flags:
     :return:
     """
-    if not re.match('^(AA|AD|CD|QR|RA|RD|TC|\s)*$', text_flags, flags=re.IGNORECASE):
+    if not re.match('^(AA|AD|CD|QR|RA|RD|TC|DO|\s)*$', text_flags, flags=re.IGNORECASE):
         raise BrokenDNSProxyError("Set wrong flags in message")
     else:
         return True
@@ -44,10 +44,33 @@ def _control_one_flag_text(text_flag):
     :param text_flag:
     :return:
     """
-    if not re.match('\s*(AA|AD|CD|QR|RA|TC)\s*', text_flag, flags=re.IGNORECASE):
+    if not re.match('\s*(AA|AD|CD|QR|RA|TC|DO)\s*', text_flag, flags=re.IGNORECASE):
         raise BrokenDNSProxyError("Wrong set flag or set more flags than one")
     else:
         return True
+
+
+def _control_edns(text_flags):
+    """
+    control set of DO flag - because DO has special function to set it
+    :param text_flags: flags we want to set
+    :return:
+    """
+    if re.match('.*DO.*', text_flags, flags=re.IGNORECASE):
+        return True
+    else:
+        return False
+
+
+def _rmv_edns_text(text_flags):
+    """
+    remove DO flags from text, because DO set the different way
+    :param text_flags: lags we want to set
+    :return new flags : string of flags without DO
+    """
+    text_flags = text_flags.upper()
+    new_flags = text_flags.replace("DO", "")
+    return new_flags
 
 
 class Modifier(object):
@@ -61,44 +84,71 @@ class Modifier(object):
         """ """
         self._modifier_msg = message
 
+    def _set_edns_flag(self, set):
+        """
+         this method set or unset the DO flag
+         DO is set by different method from others flags
+        :param set: true or false if we want or dont want set DO flag
+        :return:
+        """
+        if set:
+            self._modifier_msg.edns = dns.flags.edns_from_text("DO")
+        else:
+            self._modifier_msg.edns = dns.flags.edns_from_text(" ")
+
+    def log_flags(self):
+        logger.info("Flags:{0}".format(dns.flags.to_text(self._modifier_msg.flags)))
+        logger.info("Flag edns :{0}".format(dns.flags.edns_to_text(self._modifier_msg.edns)))
+
     def set_new_flags(self, flags_in_text):
         """
         set new flags in message from text string
-            'AA', 'AD','CD','QR','RA','RD','TC'
+            'AA', 'AD','CD','QR','RA','RD','TC', 'DO'
          example set_flags("AA RD CD")
-
-        :param flags_in_text:
+        :param flags_in_text: text of flags we want to set
         :return:
         """
         if _control_flags_text(flags_in_text):
+            if _control_edns(flags_in_text):
+                flags_in_text = _rmv_edns_text(flags_in_text)
+                self._set_edns_flag(True)
             self._modifier_msg.flags = dns.flags.from_text(flags_in_text)
-            logger.info("Flags: {0}".format(dns.flags.to_text(self._modifier_msg.flags)))
+            self.log_flags()
 
     def add_flags(self, flags_in_text):
         """
         add new flags to list of actual flags in message
-        :param flags_in_text:
+        'AA', 'AD','CD','QR','RA','RD','TC', 'DO'
+        :param flags_in_text: text of flags we want to add to flags
         :return:
         """
         if _control_flags_text(flags_in_text):
+            if _control_edns(flags_in_text):
+                flags_in_text = _rmv_edns_text(flags_in_text)
+                self._set_edns_flag(True)
             flags = dns.flags.to_text(self._modifier_msg.flags)
             new = flags+" "+flags_in_text
-            self._modifier_msg.flags=dns.flags.from_text(new)
-            logger.info("Flags: {0}".format(dns.flags.to_text(self._modifier_msg.flags)))
+            self._modifier_msg.flags = dns.flags.from_text(new)
+            self.log_flags()
 
     def remove_one_flag(self, flag_in_text):
         """
         remove ONE flag from list of flags in message
-        :param flag_in_text:
+        'AA', 'AD','CD','QR','RA','RD','TC', 'DO'
+        :param flag_in_text: text of ONE flag we want to remove
         :return:
         """
         if _control_one_flag_text(flag_in_text):
-            flags = dns.flags.to_text(self._modifier_msg.flags)
-            new = flags.replace(flag_in_text, "")
-            self._modifier_msg.flags = dns.flags.from_text(new)
-            logger.info("Flags: {0}".format(dns.flags.to_text(self._modifier_msg.flags)))
+            if _control_edns(flag_in_text):
+                self._set_edns_flag(False)
+            else:
+                flags = dns.flags.to_text(self._modifier_msg.flags)
+                flag_in_text = flag_in_text.upper()
+                flags = flags.replace(flag_in_text, "")
+                self._modifier_msg.flags = dns.flags.from_text(flags)
+            self.log_flags()
 
-
+        
 
 
 

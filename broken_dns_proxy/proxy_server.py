@@ -90,8 +90,9 @@ class ProxyServer(object):
                         # sample code how modified msg
                         modifier = Modifier(response)
                         modifier.set_new_flags("qr aa ")
-                        modifier.add_flags("tc rd ")
-                        modifier.remove_one_flag("QR")
+                        modifier.add_flags("tc rd DO do ")
+                        modifier.remove_one_flag("tc")
+                        modifier.remove_one_flag("do")
 
                         client.send(response)
         finally:
