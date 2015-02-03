@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Simple DNS Proxy for simulating DNS issues
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
