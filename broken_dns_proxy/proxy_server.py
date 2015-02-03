@@ -20,6 +20,7 @@
 
 import socket
 import select
+
 import dns.message
 import dns.rcode
 import dns.flags
@@ -28,7 +29,7 @@ import dns.query
 from broken_dns_proxy.logger import logger
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
 from broken_dns_proxy.client import Client
-from broken_dns_proxy.modifier import Modifier
+from broken_dns_proxy.modifiers.modifier import Modifier
 
 
 class ProxyServer(object):
