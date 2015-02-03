@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 #
 # Simple DNS Proxy for simulating DNS issues
-# Copyright (C) 2014  Red Hat, Inc.
+# Copyright (C) 2014-2015  Red Hat, Inc.
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -23,22 +23,20 @@ import logging
 
 from broken_dns_proxy.logger import logger, LoggerHelper
 from broken_dns_proxy.proxy_server import ProxyServer
-from broken_dns_proxy.exceptions import BrokenDNSProxyError
 
 
 class Application(object):
 
-    def __init__(self, cli_conf=None):
+    def __init__(self, cli_args=None):
         """
         """
-        self._conf = cli_conf
+        self._cli_args = cli_args
 
-        if self._conf.verbose:
+        if self._cli_args.verbose:
             LoggerHelper.add_stream_handler(logger, logging.DEBUG)
         else:
             LoggerHelper.add_stream_handler(logger, logging.INFO)
         self._add_debug_log_file()
-
         self._server = ProxyServer(53535)
 
     def _add_debug_log_file(self):
@@ -60,8 +58,3 @@ class Application(object):
 
     def run(self):
         self._server.process()
-
-
-if __name__ == '__main__':
-    a = Application(None)
-    a.run()

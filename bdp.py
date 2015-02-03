@@ -19,26 +19,6 @@
 #
 # Authors:
 
-import sys
-from broken_dns_proxy.cli import CLI
-from broken_dns_proxy.application import Application
-from broken_dns_proxy.logger import logger
-from broken_dns_proxy.exceptions import BrokenDNSProxyError
+from broken_dns_proxy.cli_runner import CliRunner
 
-
-def run():
-    try:
-        cli = CLI(sys.argv[1:])
-        app = Application(cli)
-        app.run()
-    except KeyboardInterrupt:
-        logger.info('\nInterrupted by user')
-    except BrokenDNSProxyError as e:
-        logger.error('\n{0}'.format(e))
-        sys.exit(1)
-
-    sys.exit(0)
-
-
-if __name__ == "__main__":
-    sys.exit(run())
+CliRunner.run()

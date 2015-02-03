@@ -70,7 +70,7 @@ class PyTest(Command):
             t = subprocess.Popen(cmd)
             t.wait()
 
-        raise SystemExit(t.returncode or 0)
+        raise SystemExit(t.returncode)
 
 
 install_requires = []
@@ -80,12 +80,12 @@ setup(
     name='Broken DNS Proxy',
     version=version,
     description='Simple DNS proxy for simulating DNS issues',
-    keywords='simulating issues dns proxy',
+    keywords='simulating,issues,dns,proxy',
     url='https://github.com/thozza/broken-dns-proxy',
     license='GPLv3+',
     packages=['broken_dns_proxy'],
     include_package_data=True,
-    entry_points={'console_scripts': ['bdp=bdp.run']},
+    entry_points={'console_scripts': ['bdp=broken_dns_proxy.cli_runner:CliRunner.run']},
     install_requires=install_requires,
     setup_requires=[],
     classifiers=['Development Status :: 4 - Beta',
