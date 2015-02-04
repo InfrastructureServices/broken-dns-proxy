@@ -58,7 +58,7 @@ class BrokenDnsProxyConfiguration(object):
         :return: None
         """
         cli_settings = {ProxyServer.config_section_name(): {
-            'Verbose': cli_conf.verbose,
+            'Verbose': 'yes' if cli_conf.verbose else 'no',
             'ConfigPath': cli_conf.config_path
         }}
 
