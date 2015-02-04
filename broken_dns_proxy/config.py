@@ -64,6 +64,30 @@ class BrokenDnsProxyConfiguration(object):
 
         BrokenDnsProxyConfiguration.config_parser_read_dict(self._config, cli_settings)
 
+    def __getattr__(self, name):
+        """
+        Forward all ConfigParser attributes to ConfigParser object
+
+        :param name: name of the attribute
+        :return: returns the selected attribute
+        """
+        try:
+            return getattr(self._config, name)
+        except AttributeError:
+            return object.__getattribute__(self, name)
+
+    def getlist(self, section, option):
+        """
+        Get the particular section -> option -> value as a list
+        Values has to be separated using whitespace.
+
+        :param section: existing section
+        :param option: existing option
+        :return: list of values or exception on error
+        """
+        value = self.get(section, option)
+        return value.split()
+
     @staticmethod
     def config_parser_read_dict(config_parser_obj, dictionary):
         """
