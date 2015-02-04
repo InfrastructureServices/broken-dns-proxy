@@ -20,6 +20,8 @@
 
 import argparse
 
+from broken_dns_proxy import settings
+
 
 class ArgumentsParser(object):
     """ Class for processing data from commandline """
@@ -37,6 +39,13 @@ class ArgumentsParser(object):
             default=False,
             action="store_true",
             help="Output is more verbose (recommended)"
+        )
+        self.parser.add_argument(
+            "-c",
+            "--config",
+            default=settings.DEFAULT_CONFIG_LOCATION,
+            dest='config_path',
+            help="Path to configuration file (default: '{0}')".format(settings.DEFAULT_CONFIG_LOCATION)
         )
 
     def __getattr__(self, name):

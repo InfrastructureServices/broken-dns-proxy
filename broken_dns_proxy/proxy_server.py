@@ -37,6 +37,38 @@ class ProxyServer(object):
     Class representing the proxy server listening on ports for client Queries.
     """
 
+    # Some configuration values are reserved and not set here as
+    # these are read from the command line. Reserved:
+    # 'Verbose'
+    # 'ConfigPath'
+
+    CONFIG_SECTION_NAME = 'Proxy'
+    CONFIG_DEFAULT_PORT = {'Port': 53}
+    CONFIG_DEFAULT_ADDRESS = {'Address': 'localhost'}
+    CONFIG_DEFAULT_UPSTREAM_SERVERS = {'UpstreamServers': '8.8.8.8 8.8.4.4'}
+    CONFIG_DEFAULT_MODIFIERS = {'Modifiers': ''}
+
+    @staticmethod
+    def config_section_name():
+        """
+        Return the string with name of the configuration section for Proxy server
+
+        :return: str
+        """
+        return ProxyServer.CONFIG_SECTION_NAME
+
+    @staticmethod
+    def default_configuration_dict():
+        """
+
+        :return:
+        """
+        config = dict()
+        for d in (ProxyServer.CONFIG_DEFAULT_PORT, ProxyServer.CONFIG_DEFAULT_ADDRESS,
+                  ProxyServer.CONFIG_DEFAULT_UPSTREAM_SERVERS, ProxyServer.CONFIG_DEFAULT_MODIFIERS):
+            config.update(d)
+        return config
+
     def __init__(self, port=53):
         """
         Initialize the proxy server object
