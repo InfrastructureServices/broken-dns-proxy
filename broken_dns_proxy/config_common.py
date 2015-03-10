@@ -61,7 +61,7 @@ class GlobalConfig(ConfigurableClass):
     CONFIG_PORT = 'Port'
     CONFIG_PORT_VALUE = '53'
     CONFIG_ADDRESS = 'Address'
-    CONFIG_ADDRESS_VALUE = 'localhost'
+    CONFIG_ADDRESS_VALUE = ''
     CONFIG_UPSTREAM_SERVERS = 'UpstreamServers'
     CONFIG_UPSTREAM_SERVERS_VALUE = '8.8.8.8 8.8.4.4'
     CONFIG_MODIFIERS = 'Modifiers'
