@@ -18,11 +18,14 @@
 #
 # Authors:
 
+import os
 import six
 from six.moves.configparser import ConfigParser
 
 from broken_dns_proxy.logger import logger
-from broken_dns_proxy.proxy_server import ProxyServer
+from broken_dns_proxy.exceptions import BrokenDNSProxyError
+from broken_dns_proxy.modifiers import get_modifier_by_name
+from broken_dns_proxy.config_common import GlobalConfig
 
 
 class BrokenDnsProxyConfiguration(object):
@@ -35,20 +38,40 @@ class BrokenDnsProxyConfiguration(object):
         self._add_commandline_arguments(cli_conf)
         self._read_proxy_default_config()
 
-        if cli_conf.config_path != self._config.read(cli_conf.config_path):
-            logger.warning("Configuration file '{0}' could not be read... "
-                           "Using ONLY default settings".format(cli_conf.config_path))
+        config_abs_path = os.path.abspath(cli_conf.config_path)
 
-        #  TODO: Read modifiers default configuration based the Proxy config
+        try:
+            self._config.read(config_abs_path)[0]
+        except IndexError:
+            logger.warning("Configuration file '%s' could not be read... "
+                           "Using ONLY default settings", config_abs_path)
+        else:
+            logger.debug("Using configuration from '%s'", config_abs_path)
+
+        # include configuration for all modifiers
+        self._read_modifiers_default_config()
+
+    def _read_modifiers_default_config(self):
+        """
+
+        :return:
+        """
+        for mod_name in self.getlist(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_MODIFIERS):
+            modifier = get_modifier_by_name(mod_name)
+            if not modifier:
+                logger.error("Error in Modifiers configuration!")
+                raise BrokenDNSProxyError("Modifier with name '{0}' doesn't exist!".format(mod_name))
+            BrokenDnsProxyConfiguration.config_parser_read_dict(self._config, {modifier.config_section_name():
+                                                                               modifier.default_configuration_dict()})
 
     def _read_proxy_default_config(self):
         """
-        Read the default configuration of Proxy Server and add it to Config
+        Read the default configuration of BDP and add it to Config
 
         :return: None
         """
-        BrokenDnsProxyConfiguration.config_parser_read_dict(self._config, {ProxyServer.config_section_name():
-                                                                           ProxyServer.default_configuration_dict()})
+        BrokenDnsProxyConfiguration.config_parser_read_dict(self._config, {GlobalConfig.config_section_name():
+                                                                           GlobalConfig.default_configuration_dict()})
 
     def _add_commandline_arguments(self, cli_conf):
         """
@@ -57,9 +80,9 @@ class BrokenDnsProxyConfiguration(object):
         :param cli_conf: ArgumentParser object initialized by CLI args
         :return: None
         """
-        cli_settings = {ProxyServer.config_section_name(): {
-            'Verbose': 'yes' if cli_conf.verbose else 'no',
-            'ConfigPath': cli_conf.config_path
+        cli_settings = {GlobalConfig.config_section_name(): {
+            GlobalConfig.CONFIG_VERBOSE: 'yes' if cli_conf.verbose else 'no',
+            GlobalConfig.CONFIG_CONFIG_PATH: os.path.abspath(cli_conf.config_path)
         }}
 
         BrokenDnsProxyConfiguration.config_parser_read_dict(self._config, cli_settings)

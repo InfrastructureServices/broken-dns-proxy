@@ -49,6 +49,10 @@ class Client(object):
 
         self._receive_client_msg(server_socket)
         self._client_msg = dns.message.from_wire(self._client_msg_raw)
+        logger.debug("Received DNS message:\n"
+                     "-----------------------------\n"
+                     "%s\n"
+                     "-----------------------------", str(self._client_msg))
 
     def _receive_client_msg(self, server_socket):
         """
@@ -108,7 +112,11 @@ class Client(object):
         :param msg: DNS Message object
         :return: None
         """
-        logger.debug('Sending message to client {0}:\n{1}'.format(self._client_addr, msg))
+        logger.debug('Sending message to client %s:\n'
+                     '-----------------------------\n'
+                     '%s\n'
+                     '-----------------------------',
+                     str(self._client_addr), str(msg))
 
         if self._client_sock.type == socket.SOCK_STREAM:
             self._send_stream(msg)

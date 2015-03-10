@@ -19,10 +19,11 @@
 # Authors:
 
 import sys
+import os
 
 from broken_dns_proxy.arguments_parser import ArgumentsParser
 from broken_dns_proxy.application import Application
-from broken_dns_proxy.logger import logger
+from broken_dns_proxy.logger import logger, LoggerHelper, logging
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
 
 
@@ -34,13 +35,28 @@ class CliRunner(object):
     @staticmethod
     def run():
         try:
+            # add application-wide debug log
+            LoggerHelper.add_debug_log_file(os.getcwd())
+
             args = ArgumentsParser(sys.argv[1:])
+
+            if args.verbose is True:
+                LoggerHelper.add_stream_handler(logger,
+                                                logging.Formatter('%(levelname)s:\t%(message)s'),
+                                                logging.DEBUG)
+            else:
+                LoggerHelper.add_stream_handler(logger,
+                                                logging.Formatter('%(levelname)s:\t%(message)s'),
+                                                logging.INFO)
+
             app = Application(args)
             app.run()
         except KeyboardInterrupt:
-            logger.info('\nInterrupted by user')
+            logger.info('Interrupted by user')
         except BrokenDNSProxyError as e:
-            logger.error('\n{0}'.format(e))
+            logger.error('{0}'.format(e))
             sys.exit(1)
-
-        sys.exit(0)
+        else:
+            sys.exit(0)
+        finally:
+            logger.info('Exiting...')

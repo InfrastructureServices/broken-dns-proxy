@@ -18,5 +18,11 @@
 #
 # Authors:
 
-DEFAULT_CONFIG_LOCATION = '/etc/dbp.conf'
-DEBUG_LOG_FILE_NAME = 'broken-dns-proxy-debug.log'
+from broken_dns_proxy.modifiers import is_modifier, FlagsModifier
+
+
+class TestModifiersBasic(object):
+
+    def test_modifiers_registration(self):
+        """ Test that modifiers are registered successfully """
+        assert is_modifier(FlagsModifier.config_section_name())

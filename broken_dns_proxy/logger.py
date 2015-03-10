@@ -18,7 +18,9 @@
 #
 # Authors:
 
+import os
 import logging
+from broken_dns_proxy import settings
 
 
 class LoggerHelper(object):
@@ -40,7 +42,7 @@ class LoggerHelper(object):
         return logger
 
     @staticmethod
-    def add_stream_handler(logger, level=None):
+    def add_stream_handler(logger, formatter=None, level=None):
         """
         Adds console handler with given severity.
 
@@ -51,6 +53,8 @@ class LoggerHelper(object):
         console_handler = logging.StreamHandler()
         if level:
             console_handler.setLevel(level)
+        if formatter:
+            console_handler.setFormatter(formatter)
         logger.addHandler(console_handler)
 
     @staticmethod
@@ -68,6 +72,22 @@ class LoggerHelper(object):
         if formatter:
             file_handler.setFormatter(formatter)
         logger.addHandler(file_handler)
+
+    @staticmethod
+    def add_debug_log_file(path=''):
+        """
+        Add the application wide debug log file
+        :return:
+        """
+        debug_log_file = os.path.join(path, settings.DEBUG_LOG_FILE_NAME)
+        try:
+            LoggerHelper.add_file_handler(logger,
+                                          debug_log_file,
+                                          logging.Formatter("%(asctime)s %(levelname)s\t%(filename)s"
+                                                            ":%(lineno)s %(funcName)s: %(message)s"),
+                                          logging.DEBUG)
+        except (IOError, OSError):
+            logger.warning("Can not create debug log '{0}'".format(debug_log_file))
 
 
 #  the main Broken DNS Proxy logger

@@ -18,5 +18,25 @@
 #
 # Authors:
 
-DEFAULT_CONFIG_LOCATION = '/etc/dbp.conf'
-DEBUG_LOG_FILE_NAME = 'broken-dns-proxy-debug.log'
+from broken_dns_proxy.exceptions import BrokenDNSProxyError
+
+
+modifiers = {}
+
+
+def register_modifier(modifier):
+    if is_modifier(modifier.config_section_name().lower()):
+        raise BrokenDNSProxyError("Modifier with name {0} already exists!", modifier.config_section_name())
+    modifiers[modifier.config_section_name().lower()] = modifier
+    return modifier
+
+
+def is_modifier(modifier_name):
+    return True if get_modifier_by_name(modifier_name) else False
+
+
+def get_modifier_by_name(modifier_name):
+    try:
+        return modifiers[modifier_name.lower()]
+    except KeyError:
+        return None

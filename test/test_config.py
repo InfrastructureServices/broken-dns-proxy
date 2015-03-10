@@ -18,9 +18,12 @@
 #
 # Authors:
 
+import os
+
 from broken_dns_proxy.arguments_parser import ArgumentsParser
 from broken_dns_proxy.config import BrokenDnsProxyConfiguration
-from broken_dns_proxy.proxy_server import ProxyServer
+from broken_dns_proxy.config_common import GlobalConfig
+from broken_dns_proxy.modifiers import FlagsModifier
 
 
 class TestBrokenDnsProxyConfiguration(object):
@@ -31,16 +34,36 @@ class TestBrokenDnsProxyConfiguration(object):
     def test_default_configuration(self):
         """
         Test the default configuration without CLI arguments.
-
-        :return:
         """
         cli = ArgumentsParser('')
         config = BrokenDnsProxyConfiguration(cli)
 
-        assert config._config.has_section(ProxyServer.config_section_name())
-        assert config._config.has_option(ProxyServer.config_section_name(), 'Verbose')
-        assert config._config.has_option(ProxyServer.config_section_name(), 'ConfigPath')
-        assert config._config.has_option(ProxyServer.config_section_name(), 'Port')
-        assert config._config.has_option(ProxyServer.config_section_name(), 'Address')
-        assert config._config.has_option(ProxyServer.config_section_name(), 'UpstreamServers')
-        assert config._config.has_option(ProxyServer.config_section_name(), 'Modifiers')
+        assert config._config.has_section(GlobalConfig.config_section_name())
+        assert config._config.has_option(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_VERBOSE)
+        assert config._config.has_option(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_CONFIG_PATH)
+        assert config._config.has_option(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_PORT)
+        assert config._config.has_option(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_ADDRESS)
+        assert config._config.has_option(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_ADDRESS)
+        assert config._config.has_option(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_MODIFIERS)
+
+        # there is no Modifier specific configuration
+        assert not config._config.has_section(FlagsModifier.config_section_name())
+
+    def test_configuration_with_flags_modifier(self):
+        """
+        Test that adding FlagsModifier into modifiers option will include the modifier default configuration
+        """
+        cfg_file = os.path.abspath('test/testing_files/config_with_modifier')
+        cli = ArgumentsParser(['-c', cfg_file])
+        config = BrokenDnsProxyConfiguration(cli)
+
+        assert config._config.has_section(FlagsModifier.config_section_name())
+        assert config._config.has_option(FlagsModifier.config_section_name(), FlagsModifier.CONFIG_AA)
+        assert config._config.has_option(FlagsModifier.config_section_name(), FlagsModifier.CONFIG_TC)
+        assert config._config.has_option(FlagsModifier.config_section_name(), FlagsModifier.CONFIG_RD)
+        assert config._config.has_option(FlagsModifier.config_section_name(), FlagsModifier.CONFIG_RA)
+        assert config._config.has_option(FlagsModifier.config_section_name(), FlagsModifier.CONFIG_AD)
+        assert config._config.has_option(FlagsModifier.config_section_name(), FlagsModifier.CONFIG_CD)
+        assert config._config.has_option(FlagsModifier.config_section_name(), FlagsModifier.CONFIG_DO)
+
+

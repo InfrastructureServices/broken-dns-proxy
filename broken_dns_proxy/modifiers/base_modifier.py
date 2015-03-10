@@ -18,5 +18,28 @@
 #
 # Authors:
 
-DEFAULT_CONFIG_LOCATION = '/etc/dbp.conf'
-DEBUG_LOG_FILE_NAME = 'broken-dns-proxy-debug.log'
+from broken_dns_proxy.config_common import ConfigurableClass
+
+
+class BaseModifier(ConfigurableClass):
+    """
+    Base class for dns message modifier
+    """
+
+    def __init__(self, configuration):
+        """
+        Constructor
+
+        :param configuration: BrokenDnsProxyConfiguration object
+        :return: new object
+        """
+        raise NotImplementedError()
+
+    def modify(self, dns_message):
+        """
+        Method modifying the DNS message, based on Modifier configuration
+
+        :param dns_message: dns message object to modify
+        :return: possibly modified dns message object
+        """
+        raise NotImplementedError()

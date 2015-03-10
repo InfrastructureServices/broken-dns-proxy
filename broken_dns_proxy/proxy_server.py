@@ -20,6 +20,7 @@
 
 import socket
 import select
+import random
 
 import dns.message
 import dns.rcode
@@ -29,7 +30,8 @@ import dns.query
 from broken_dns_proxy.logger import logger
 from broken_dns_proxy.exceptions import BrokenDNSProxyError
 from broken_dns_proxy.client import Client
-from broken_dns_proxy.modifiers.modifier import Modifier
+from broken_dns_proxy.modifiers import ModificationChain
+from broken_dns_proxy.config_common import GlobalConfig
 
 
 class ProxyServer(object):
@@ -37,53 +39,40 @@ class ProxyServer(object):
     Class representing the proxy server listening on ports for client Queries.
     """
 
-    # Some configuration values are reserved and not set here as
-    # these are read from the command line. Reserved:
-    # 'Verbose'
-    # 'ConfigPath'
-
-    CONFIG_SECTION_NAME = 'Proxy'
-    CONFIG_DEFAULT_PORT = {'Port': 53}
-    CONFIG_DEFAULT_ADDRESS = {'Address': 'localhost'}
-    CONFIG_DEFAULT_UPSTREAM_SERVERS = {'UpstreamServers': '8.8.8.8 8.8.4.4'}
-    CONFIG_DEFAULT_MODIFIERS = {'Modifiers': ''}
-
-    @staticmethod
-    def config_section_name():
-        """
-        Return the string with name of the configuration section for Proxy server
-
-        :return: str
-        """
-        return ProxyServer.CONFIG_SECTION_NAME
-
-    @staticmethod
-    def default_configuration_dict():
-        """
-
-        :return:
-        """
-        config = dict()
-        for d in (ProxyServer.CONFIG_DEFAULT_PORT, ProxyServer.CONFIG_DEFAULT_ADDRESS,
-                  ProxyServer.CONFIG_DEFAULT_UPSTREAM_SERVERS, ProxyServer.CONFIG_DEFAULT_MODIFIERS):
-            config.update(d)
-        return config
-
-    def __init__(self, port=53):
+    def __init__(self, configuration):
         """
         Initialize the proxy server object
 
         :param port: port on which the proxy should listen
         :return:
         """
-        self._listen_port = port
+        # global configuration
+        self._configuration = configuration
+        # ProxyServer specific configuration
+        self._listen_port = self._configuration.getint(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_PORT)
+        self._listen_address = self._configuration.get(GlobalConfig.config_section_name(), GlobalConfig.CONFIG_ADDRESS)
+        self._upstream_servers = self._configuration.getlist(GlobalConfig.config_section_name(),
+                                                             GlobalConfig.CONFIG_UPSTREAM_SERVERS)
+        # internal variables
         self._sockets = []
+        # create Modification chain
+        self._modification_chain = ModificationChain(self._configuration)
+
+    def __str__(self):
+        """
+
+        :return:
+        """
+        return "<ProxyServer address='{0}' port='{1}' upstream_servers='{2}'>".format(self._listen_address,
+                                                                                      self._listen_port,
+                                                                                      self._upstream_servers)
 
     def process(self):
         """
         Start listening and processing Queries.
         :return:
         """
+        # TODO: need to figure out what to do when ony IPv4 address is to be used
         s_udp6 = socket.socket(socket.AF_INET6, socket.SOCK_DGRAM)
         s_tcp6 = socket.socket(socket.AF_INET6, socket.SOCK_STREAM)
         s_udp6.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
@@ -94,14 +83,16 @@ class ProxyServer(object):
         try:
             # kernel allows to receive IPv4 packets
             try:
-                s_udp6.bind(('', self._listen_port))
-                s_tcp6.bind(('', self._listen_port))
+                s_udp6.bind((self._listen_address, self._listen_port))
+                s_tcp6.bind((self._listen_address, self._listen_port))
             except socket.error as e:
                 # [Errno 13] Permission denied
                 if e.errno == 13:
-                    raise BrokenDNSProxyError('You need to be root to bind to port {0}'.format(self._listen_port))
-                else:
-                    raise BrokenDNSProxyError(e.strerror)
+                    logger.error('You need to be root to bind to port {0}'.format(self._listen_port))
+                # [Errno -9] Address family for hostname not supported
+                elif e.errno == -9:
+                    logger.error("Only IPv4 addresses or 'localhost' is supported at this point.")
+                raise BrokenDNSProxyError(e.strerror)
 
             s_tcp6.listen(0)
 
@@ -111,23 +102,18 @@ class ProxyServer(object):
                 ready_r, ready_w, _ = select.select(self._sockets, [], [])
 
                 for s in ready_r:
-                        client = Client(s)
-                        msg = client.msg()
-                        logger.info('Received MSG:')
-                        logger.info(str(msg))
+                    client = Client(s)
+                    msg = client.msg()
 
-                        # sample code sending a response to the client
-                        upstream_server = '8.8.8.8'
-                        response = dns.query.udp(msg, upstream_server)
+                    # sample code sending a response to the client
+                    upstream_server = random.choice(self._upstream_servers)
+                    logger.debug("Forwarding Query to upstream server '{0}'".format(upstream_server))
+                    response = dns.query.udp(msg, upstream_server)
 
-                        # sample code how modified msg
-                        modifier = Modifier(response)
-                        modifier.set_new_flags("qr aa ")
-                        modifier.add_flags("tc rd DO do ")
-                        modifier.remove_one_flag("tc")
-                        modifier.remove_one_flag("do")
+                    # modify the message for client
+                    self._modification_chain.run_modifiers(response)
 
-                        client.send(response)
+                    client.send(response)
         finally:
             for s in self._sockets:
                 s.close()

@@ -17,3 +17,9 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 # Authors:
+
+from .modifiers import register_modifier, is_modifier, get_modifier_by_name
+
+from .base_modifier import BaseModifier
+from .flags_modifier import FlagsModifier
+from .modification_chain import ModificationChain
