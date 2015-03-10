@@ -54,7 +54,7 @@ class CliRunner(object):
         except KeyboardInterrupt:
             logger.info('Interrupted by user')
         except BrokenDNSProxyError as e:
-            logger.error('{0}'.format(e))
+            logger.error('%s', str(e))
             sys.exit(1)
         else:
             sys.exit(0)
