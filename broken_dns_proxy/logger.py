@@ -87,7 +87,7 @@ class LoggerHelper(object):
                                                             ":%(lineno)s %(funcName)s: %(message)s"),
                                           logging.DEBUG)
         except (IOError, OSError):
-            logger.warning("Can not create debug log '{0}'".format(debug_log_file))
+            logger.warning("Can not create debug log '%s'", debug_log_file)
 
 
 #  the main Broken DNS Proxy logger

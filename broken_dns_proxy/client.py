@@ -72,10 +72,10 @@ class Client(object):
         :return:
         """
         self._client_sock, self._client_addr = server_socket.accept()
-        logger.debug('TCP client {0} connected'.format(self._client_addr))
+        logger.debug('TCP client %s connected', str(self._client_addr))
 
         self._client_msg_len = struct.unpack('!H', self._client_sock.recv(2))[0]
-        logger.debug('TCP Query of length {0}'.format(self._client_msg_len))
+        logger.debug('TCP Query of length %s', str(self._client_msg_len))
 
         while len(self._client_msg_raw) < self._client_msg_len:
             # read all data
@@ -92,9 +92,9 @@ class Client(object):
         """
         # 16bit max udp length limit
         self._client_msg_raw, self._client_addr = server_socket.recvfrom(2**16)
-        logger.debug('Received UDP data from: {0}'.format(self._client_addr))
+        logger.debug('Received UDP data from: %s', str(self._client_addr))
         self._client_msg_len = len(self._client_msg_raw)
-        logger.debug('UDP Query of length {0}'.format(self._client_msg_len))
+        logger.debug('UDP Query of length %s', str(self._client_msg_len))
         self._client_sock = server_socket
 
     def msg(self):

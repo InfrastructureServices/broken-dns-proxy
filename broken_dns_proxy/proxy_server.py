@@ -88,7 +88,7 @@ class ProxyServer(object):
             except socket.error as e:
                 # [Errno 13] Permission denied
                 if e.errno == 13:
-                    logger.error('You need to be root to bind to port {0}'.format(self._listen_port))
+                    logger.error('You need to be root to bind to port %s', str(self._listen_port))
                 # [Errno -9] Address family for hostname not supported
                 elif e.errno == -9:
                     logger.error("Only IPv4 addresses or 'localhost' is supported at this point.")
@@ -96,7 +96,7 @@ class ProxyServer(object):
 
             s_tcp6.listen(0)
 
-            logger.info('Listening on port {0}...'.format(self._listen_port))
+            logger.info('Listening on port %s...', str(self._listen_port))
 
             while True:
                 ready_r, ready_w, _ = select.select(self._sockets, [], [])
@@ -107,7 +107,7 @@ class ProxyServer(object):
 
                     # sample code sending a response to the client
                     upstream_server = random.choice(self._upstream_servers)
-                    logger.debug("Forwarding Query to upstream server '{0}'".format(upstream_server))
+                    logger.debug("Forwarding Query to upstream server '%s'", str(upstream_server))
                     response = dns.query.udp(msg, upstream_server)
 
                     # modify the message for client

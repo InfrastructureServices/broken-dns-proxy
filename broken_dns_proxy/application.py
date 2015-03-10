@@ -35,5 +35,5 @@ class Application(object):
         self._server = ProxyServer(self.configuration)
 
     def run(self):
-        logger.debug("Staring proxy server '{0}'".format(str(self._server)))
+        logger.debug("Staring proxy server '%s'", str(self._server))
         self._server.process()

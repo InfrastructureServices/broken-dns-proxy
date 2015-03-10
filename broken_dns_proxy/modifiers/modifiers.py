@@ -26,7 +26,7 @@ modifiers = {}
 
 def register_modifier(modifier):
     if is_modifier(modifier.config_section_name().lower()):
-        raise BrokenDNSProxyError("Modifier with name {0} already exists!", modifier.config_section_name())
+        raise BrokenDNSProxyError("Modifier with name {0} already exists!".format(modifier.config_section_name()))
     modifiers[modifier.config_section_name().lower()] = modifier
     return modifier
 

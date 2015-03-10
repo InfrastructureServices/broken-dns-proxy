@@ -110,7 +110,7 @@ class FlagsModifier(BaseModifier):
         except ValueError:
             value = self._configuration.get(self.CONFIG_SECTION_NAME, option_name)
             if value.strip().lower() != self.ACTION_NONE:
-                logger.error("Wrong value '{0}' in configuration for {1}", value, option_name)
+                logger.error("Wrong value '%s' in configuration for %s", value, option_name)
 
     def modify(self, dns_message):
         """
