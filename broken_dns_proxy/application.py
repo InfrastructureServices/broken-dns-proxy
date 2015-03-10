@@ -18,10 +18,7 @@
 #
 # Authors:
 
-import os
-import logging
-
-from broken_dns_proxy.logger import logger, LoggerHelper
+from broken_dns_proxy.logger import logger
 from broken_dns_proxy.proxy_server import ProxyServer
 from broken_dns_proxy.config import BrokenDnsProxyConfiguration
 
