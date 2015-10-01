@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/python3
 # -*- coding: utf-8 -*-
 #
 # Simple DNS Proxy for simulating DNS issues
@@ -19,6 +19,7 @@
 #
 # Authors:
 
-from broken_dns_proxy.cli_runner import CliRunner
+from broken_dns_proxy.__main__ import __main__
 
-CliRunner.run()
+
+__main__()
