@@ -15,8 +15,7 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Authors:
+
 
 import os
 
@@ -53,7 +52,7 @@ class TestBrokenDnsProxyConfiguration(object):
         """
         Test that adding FlagsModifier into modifiers option will include the modifier default configuration
         """
-        cfg_file = os.path.abspath('test/testing_files/config_with_modifier')
+        cfg_file = os.path.abspath('../testing_files/config_with_modifier')
         cli = ArgumentsParser(['-c', cfg_file])
         config = BrokenDnsProxyConfiguration(cli)
 

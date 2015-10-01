@@ -15,14 +15,3 @@
 #
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-# Authors:
-
-from broken_dns_proxy.modifiers import is_modifier, FlagsModifier
-
-
-class TestModifiersBasic(object):
-
-    def test_modifiers_registration(self):
-        """ Test that modifiers are registered successfully """
-        assert is_modifier(FlagsModifier.config_section_name())
