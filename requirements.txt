@@ -1,2 +1,2 @@
-dns
+dnspython3
 six
