@@ -52,7 +52,7 @@ class TestBrokenDnsProxyConfiguration(object):
         """
         Test that adding FlagsModifier into modifiers option will include the modifier default configuration
         """
-        cfg_file = os.path.abspath('../testing_files/config_with_modifier')
+        cfg_file = os.path.abspath('broken_dns_proxy/tests/testing_files/config_with_modifier')
         cli = ArgumentsParser(['-c', cfg_file])
         config = BrokenDnsProxyConfiguration(cli)
 
