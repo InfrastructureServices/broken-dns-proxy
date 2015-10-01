@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/thozza/broken-dns-proxy.svg)](https://travis-ci.org/thozza/broken-dns-proxy) [![Code Health](https://landscape.io/github/thozza/broken-dns-proxy/master/landscape.svg)](https://landscape.io/github/thozza/broken-dns-proxy/master)
 Broken DNS Proxy
 ================
 
@@ -8,4 +9,4 @@ Simple DNS proxy for simulating various DNS issues
 
 ![Broken DNS Proxy flowchart](https://raw.githubusercontent.com/thozza/broken-dns-proxy/master/dns_proxy_flow.png)
 
-[![Code Health](https://landscape.io/github/thozza/broken-dns-proxy/master/landscape.svg)](https://landscape.io/github/thozza/broken-dns-proxy/master)
+
